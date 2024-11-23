@@ -1,9 +1,8 @@
 # Openmediavault LDAP
 
 This plugin connects OMV6 to an OPEN-LDAP Server for centralized user management
-and authentification. It adapts the official LDAP plugin [1] for OMV4 to use it
-with OMV6 or OMV5.  
-Basically there aren't any fundamental changes up to 6.3.5-2 tag. You can use LDAP
+and authentification. It adapts the official LDAP plugin [1] for OMV4 and OMV 6 version
+from https://github.com/lucapiccio/openmediavault-ldap to use with OMV7.  
 for system wide User- and Groupmanagement. Additionally you can activate PAM auth 
 with *libpam-ldapd* module. The name switch service is done with *libnss-ldapd*.
 For caching actually the NSCD service is used, maybe we should change from NSLCD to 
