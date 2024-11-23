@@ -1,0 +1,21 @@
+{{ pillar['headers']['multiline'] }}
+
+{%- if config.enable | to_bool %}
+passwd:         compat ldap
+group:          compat ldap
+shadow:         compat ldap
+{%- else %}
+passwd:         compat
+group:          compat
+shadow:         compat
+{%- endif %}
+
+hosts:          files mdns4_minimal [NOTFOUND=return] dns mdns4
+networks:       files
+
+protocols:      db files
+services:       db files
+ethers:         db files
+rpc:            db files
+
+netgroup:       nis
