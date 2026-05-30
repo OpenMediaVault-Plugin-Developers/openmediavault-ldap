@@ -13,7 +13,7 @@ configure_ldap_dir:
     - name: "/etc/ldap"
     - user: "root"
     - group: "root"
-    - mode: 755
+    - mode: '0755'
     - makedirs: True
 
 configure_ldap:
@@ -26,7 +26,7 @@ configure_ldap:
         config: {{ config | json }}
     - user: root
     - group: root
-    - mode: 644
+    - mode: '0644'
 
 configure_ldap_pam:
   file.managed:
@@ -39,7 +39,7 @@ configure_ldap_pam:
         ldap_version: {{ ldap_version }}
     - user: root
     - group: root
-    - mode: 600
+    - mode: '0600'
 
 configure_ldap_libnss:
   file.managed:
@@ -52,7 +52,7 @@ configure_ldap_libnss:
         ldap_version: {{ ldap_version }}
     - user: root
     - group: root
-    - mode: 644
+    - mode: '0644'
 
 configure_ldap_libnss_passwd:
   file.managed:
@@ -61,6 +61,6 @@ configure_ldap_libnss_passwd:
        {{ config.rootbindpw }}
     - user: root
     - group: root
-    - mode: 600
+    - mode: '0600'
 
 {% endif %}
