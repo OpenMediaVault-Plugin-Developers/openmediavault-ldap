@@ -1,19 +1,22 @@
 # Openmediavault LDAP
 
-This plugin connects OMV6 to an OPEN-LDAP Server for centralized user management
-and authentification. It adapts the official LDAP plugin [1] for OMV4 and OMV 6 version
-from https://github.com/lucapiccio/openmediavault-ldap to use with OMV7.  
-for system wide User- and Groupmanagement. Additionally you can activate PAM auth 
-with *libpam-ldapd* module. The name switch service is done with *libnss-ldapd*.
-For caching actually the NSCD service is used, maybe we should change from NSLCD to 
-SSSD in future. A good explanation of the pam auth and nss process will give
+This plugin connects OMV8 to an OPEN-LDAP Server for centralized user management
+and authentification. It adapts the official LDAP plugin [1] for OMV4 and OMV6 version
+from https://github.com/lucapiccio/openmediavault-ldap to use with OMV8.  
+for system wide User- and Groupmanagement. Additionally you can activate PAM auth.
+You can choose between two client backends:
+* **nss-pam-ldapd (nslcd)** - the default, configured through */etc/nslcd.conf*
+  (uses *libnss-ldapd* / *libpam-ldapd*).
+* **SSSD** - configured through */etc/sssd/sssd.conf*, which additionally provides
+  offline credential caching (uses *libnss-sss* / *libpam-sss*).
+Only the selected backend's daemon and NSS/PAM modules are activated; the other is
+stopped and disabled. A good explanation of the pam auth and nss process will give
 you the reference [4].  
-The security is enforced at StartTLS or SSL. 
+The security is enforced at SSL/TLS (LDAPS or StartTLS). 
 This repo is under development. Checkout the tags in the master branch for stable 
 and tested releases. If you encounter some problems make a new issue or write an email
 to *devel[at]nareo.de*.  
-Be aware: This code was tested in a clean environment with fresh installed OMV6 setup.
-I am not responsible for loss of your data! Please make always a full backup
+Be aware: I am not responsible for loss of your data! Please make always a full backup
 of your OMV machine before installing this plugin!
 
 ## Testing Environment and Help

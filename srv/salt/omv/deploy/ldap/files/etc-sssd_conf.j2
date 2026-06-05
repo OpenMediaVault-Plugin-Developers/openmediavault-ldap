@@ -1,0 +1,49 @@
+{%- set ldap_ssl_cacert_dir = salt['pillar.get']('default:OMV_LDAP_CONFIG_TLS_CACERTDIR', '/etc/ssl/certs') -%}
+{%- set ldap_ssl_cacert = salt['pillar.get']('default:OMV_LDAP_CONFIG_TLS_CACERT', '/etc/ssl/certs/ca-certificates.crt') -%}
+{{ pillar['headers']['multiline'] }}
+[sssd]
+config_file_version = 2
+services = nss, pam
+domains = default
+
+[domain/default]
+id_provider = ldap
+auth_provider = ldap
+chpass_provider = ldap
+
+ldap_uri = ldap{% if config.enablessl | to_bool %}s{% endif %}://{{ config.host }}{% if config.port | string | length > 0 %}:{{ config.port }}{% endif %}
+
+ldap_search_base = {{ config.base }}
+{%- if config.rootbinddn | length > 0 %}
+ldap_default_bind_dn = {{ config.rootbinddn }}
+{%- if config.rootbindpw | length > 0 %}
+ldap_default_authtok = {{ config.rootbindpw }}
+{%- endif %}
+{%- endif %}
+{%- if config.usersuffix | length > 0 %}
+ldap_user_search_base = {{ config.usersuffix }},{{ config.base }}
+{%- endif %}
+{%- if config.groupsuffix | length > 0 %}
+ldap_group_search_base = {{ config.groupsuffix }},{{ config.base }}
+{%- endif %}
+
+{% if config.enablessl | to_bool -%}
+ldap_id_use_start_tls = False
+ldap_tls_reqcert = {{ config.tlsreqcert }}
+ldap_tls_cacert = {{ ldap_ssl_cacert }}
+ldap_tls_cacertdir = {{ ldap_ssl_cacert_dir }}
+{%- elif config.enablestarttls | to_bool -%}
+ldap_id_use_start_tls = True
+ldap_tls_reqcert = {{ config.tlsreqcert }}
+ldap_tls_cacert = {{ ldap_ssl_cacert }}
+ldap_tls_cacertdir = {{ ldap_ssl_cacert_dir }}
+{%- else -%}
+ldap_id_use_start_tls = False
+{%- endif %}
+
+cache_credentials = {{ 'True' if config.cachecredentials | to_bool else 'False' }}
+enumerate = {{ 'True' if config.enumerate | to_bool else 'False' }}
+{%- if config.extraoptions | length > 0 %}
+
+{{ config.extraoptions }}
+{%- endif %}

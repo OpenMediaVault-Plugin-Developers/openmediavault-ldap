@@ -10,6 +10,7 @@ case "$1" in
 		if [ -z "$2" ]; then
 			echo "Updating system environment ..."
 			pam-auth-update --force --package --remove ldap
+			pam-auth-update --force --package --remove sss
 		fi
 
 		dpkg-trigger update-workbench

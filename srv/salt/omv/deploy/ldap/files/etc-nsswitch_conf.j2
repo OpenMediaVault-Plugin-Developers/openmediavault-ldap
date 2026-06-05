@@ -1,9 +1,10 @@
 {{ pillar['headers']['multiline'] }}
 
 {%- if config.enable | to_bool %}
-passwd:         compat ldap
-group:          compat ldap
-shadow:         compat ldap
+{%- set nss_module = 'sss' if config.backend == 'sssd' else 'ldap' %}
+passwd:         compat {{ nss_module }}
+group:          compat {{ nss_module }}
+shadow:         compat {{ nss_module }}
 {%- else %}
 passwd:         compat
 group:          compat

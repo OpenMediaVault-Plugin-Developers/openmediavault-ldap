@@ -15,6 +15,17 @@ data:
         name: enable
         label: _("Enabled")
         value: false
+      - type: select
+        name: backend
+        label: _("Backend")
+        hint: _("The client service used to resolve and authenticate LDAP users. SSSD additionally supports offline credential caching.")
+        value: "nslcd"
+        store:
+          data:
+            - ["nslcd", "nss-pam-ldapd (nslcd)"]
+            - ["sssd", "SSSD"]
+        validators:
+          required: true
       - type: numberInput
         name: port
         label: _("Port")
@@ -34,9 +45,44 @@ data:
           required: true
       - type: checkbox
         name: enablessl
-        label: _("Enable explicit SSL instead of StartTLS")
-        hint: _("Enable SSL secure connection.")
+        label: _("Enable SSL (LDAPS)")
+        hint: _("Use an explicit SSL/TLS connection (ldaps://), typically on port 636.")
         value: false
+      - type: checkbox
+        name: enablestarttls
+        label: _("Enable StartTLS")
+        hint: _("Upgrade the plain connection to TLS using StartTLS. Ignored when SSL (LDAPS) is enabled.")
+        value: false
+        modifiers:
+          - type: disabled
+            constraint:
+              operator: truthy
+              arg0:
+                prop: enablessl
+      - type: select
+        name: tlsreqcert
+        label: _("Certificate validation")
+        hint: _("How to handle checking of the server's TLS certificate. Use 'demand' for a properly issued certificate, 'never' to disable validation (e.g. self-signed without a local CA).")
+        value: "demand"
+        store:
+          data:
+            - ["never", _("never")]
+            - ["allow", _("allow")]
+            - ["try", _("try")]
+            - ["demand", _("demand")]
+            - ["hard", _("hard")]
+        modifiers:
+          - type: visible
+            constraint:
+              operator: or
+              arg0:
+                operator: truthy
+                arg0:
+                  prop: enablessl
+              arg1:
+                operator: truthy
+                arg0:
+                  prop: enablestarttls
       - type: textInput
         name: base
         label: _("Base DN")
@@ -77,15 +123,39 @@ data:
         label: _("Enable PAM")
         hint: _("Use LDAP for authentication system-wide along with other authentication sources.")
         value: true
+      - type: checkbox
+        name: cachecredentials
+        label: _("Cache credentials")
+        hint: _("Allow users to authenticate from cached credentials when the LDAP server is unreachable (SSSD only).")
+        value: true
+        modifiers:
+          - type: visible
+            constraint:
+              operator: eq
+              arg0:
+                prop: backend
+              arg1: "sssd"
+      - type: checkbox
+        name: enumerate
+        label: _("Enumerate users and groups")
+        hint: _("Pre-fetch and cache the full list of users and groups. Disable on large directories for performance (SSSD only).")
+        value: false
+        modifiers:
+          - type: visible
+            constraint:
+              operator: eq
+              arg0:
+                prop: backend
+              arg1: "sssd"
       - type: textInput
         name: extraoptions
-        label: _("Extra options LIBNSS-LDAP.CONF")
-        hint: _("Please check the <a href='https://manpages.debian.org/bullseye/libnss-ldap/libnss-ldap.conf.5.en.html' target='_blank'>manual page</a> for more details.")
+        label: _("Extra options")
+        hint: _("Additional lines appended to the active backend configuration - the <a href='https://manpages.debian.org/trixie/nslcd/nslcd.conf.5.en.html' target='_blank'>nslcd.conf</a> body, or the <a href='https://manpages.debian.org/trixie/sssd/sssd.conf.5.en.html' target='_blank'>sssd.conf</a> domain section.")
         value: ''
       - type: textInput
         name: extraclientoptions
         label: _("Extra client options LDAP.CONF")
-        hint: _("Please check the <a href='https://manpages.debian.org/bullseye/libldap-common/ldap.conf.5.en.html' target='_blank'>manual page</a> for more details.")
+        hint: _("Please check the <a href='https://manpages.debian.org/trixie/libldap-common/ldap.conf.5.en.html' target='_blank'>manual page</a> for more details.")
         value: ''
     buttons:
       - template: submit

@@ -1,10 +1,8 @@
 {% set config = salt['omv_conf.get']('conf.service.ldap') %}
 
-{% set ldap_version = salt['pillar.get']('default:OMV_LDAP_LDAPVERSION', '3') %}
 {% set ldap_config_file = salt['pillar.get']('default:OMV_LDAP_CONFIG', '/etc/ldap/ldap.conf') %}
-{% set ldap_pam_config_file = salt['pillar.get']('default:OMV_LDAP_PAM_CONFIG', '/etc/pam_ldap.conf') %}
-{% set ldap_libnss_config_file = salt['pillar.get']('default:OMV_LDAP_LIBNSS_CONFIG', '/etc/libnss-ldap.conf') %}
-{% set ldap_libnss_secret_file = salt['pillar.get']('default:OMV_LDAP_LIBNSS_SECRET', '/etc/libnss-ldap.secret') %}
+{% set nslcd_config_file = salt['pillar.get']('default:OMV_LDAP_NSLCD_CONFIG', '/etc/nslcd.conf') %}
+{% set sssd_config_file = salt['pillar.get']('default:OMV_LDAP_SSSD_CONFIG', '/etc/sssd/sssd.conf') %}
 
 {% if config.enable | to_bool %}
 
@@ -28,39 +26,71 @@ configure_ldap:
     - group: root
     - mode: '0644'
 
-configure_ldap_pam:
+{% if config.backend == 'sssd' %}
+
+stop_unused_nslcd_service:
+  service.dead:
+    - name: nslcd
+    - enable: False
+
+configure_sssd:
   file.managed:
-    - name: {{ ldap_pam_config_file }}
+    - name: {{ sssd_config_file }}
     - source:
-      - salt://{{ tpldir }}/files/etc-ldap-pam_conf.j2
+      - salt://{{ tpldir }}/files/etc-sssd_conf.j2
     - template: jinja
     - context:
         config: {{ config | json }}
-        ldap_version: {{ ldap_version }}
     - user: root
     - group: root
     - mode: '0600'
+    - makedirs: True
 
-configure_ldap_libnss:
+start_sssd_service:
+  service.running:
+    - name: sssd
+    - enable: True
+    - watch:
+      - file: configure_sssd
+
+{% else %}
+
+stop_unused_sssd_service:
+  service.dead:
+    - name: sssd
+    - enable: False
+
+configure_nslcd:
   file.managed:
-    - name: {{ ldap_libnss_config_file }}
+    - name: {{ nslcd_config_file }}
     - source:
-      - salt://{{ tpldir }}/files/etc-ldap-libnss_conf.j2
+      - salt://{{ tpldir }}/files/etc-nslcd_conf.j2
     - template: jinja
     - context:
         config: {{ config | json }}
-        ldap_version: {{ ldap_version }}
     - user: root
-    - group: root
-    - mode: '0644'
+    - group: nslcd
+    - mode: '0640'
 
-configure_ldap_libnss_passwd:
-  file.managed:
-    - name: {{ ldap_libnss_secret_file }}
-    - contents: |
-       {{ config.rootbindpw }}
-    - user: root
-    - group: root
-    - mode: '0600'
+start_nslcd_service:
+  service.running:
+    - name: nslcd
+    - enable: True
+    - watch:
+      - file: configure_nslcd
+
+{% endif %}
+
+{% else %}
+
+stop_nslcd_service:
+  service.dead:
+    - name: nslcd
+    - enable: False
+
+stop_sssd_service:
+  service.dead:
+    - name: sssd
+    - enable: False
 
 {% endif %}

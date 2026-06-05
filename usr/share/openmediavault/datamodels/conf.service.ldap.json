@@ -11,6 +11,11 @@
       "type": "boolean",
       "default": true
     },
+    "backend": {
+      "type": "string",
+      "enum": ["nslcd", "sssd"],
+      "default": "nslcd"
+    },
     "host": {
       "type": "string"
     },
@@ -23,6 +28,15 @@
     "enablessl": {
       "type": "boolean",
       "default": false
+    },
+    "enablestarttls": {
+      "type": "boolean",
+      "default": false
+    },
+    "tlsreqcert": {
+      "type": "string",
+      "enum": ["never", "allow", "try", "demand", "hard"],
+      "default": "demand"
     },
     "base": {
       "type": "string"
@@ -52,6 +66,14 @@
     "enablepam": {
       "type": "boolean",
       "default": true
+    },
+    "cachecredentials": {
+      "type": "boolean",
+      "default": true
+    },
+    "enumerate": {
+      "type": "boolean",
+      "default": false
     },
     "extraoptions": {
       "type": "string"

@@ -1,0 +1,47 @@
+{%- set ldap_ssl_cacert_dir = salt['pillar.get']('default:OMV_LDAP_CONFIG_TLS_CACERTDIR', '/etc/ssl/certs') -%}
+{%- set ldap_ssl_cacert = salt['pillar.get']('default:OMV_LDAP_CONFIG_TLS_CACERT', '/etc/ssl/certs/ca-certificates.crt') -%}
+{{ pillar['headers']['multiline'] }}
+# The user and group nslcd should run as.
+uid nslcd
+gid nslcd
+
+# The location at which the LDAP server(s) should be reachable.
+uri ldap{% if config.enablessl | to_bool %}s{% endif %}://{{ config.host }}{% if config.port | string | length > 0 %}:{{ config.port }}{% endif %}
+
+# The search base that will be used for all queries.
+base {{ config.base }}
+
+# The DN to bind with for normal lookups.
+binddn {{ config.rootbinddn }}
+{%- if config.rootbindpw | length > 0 %}
+bindpw {{ config.rootbindpw }}
+{%- endif %}
+{% if config.enablessl | to_bool %}
+# SSL/TLS options.
+ssl on
+tls_reqcert {{ config.tlsreqcert }}
+tls_cacertdir {{ ldap_ssl_cacert_dir }}
+tls_cacertfile {{ ldap_ssl_cacert }}
+{%- elif config.enablestarttls | to_bool %}
+# SSL/TLS options.
+ssl start_tls
+tls_reqcert {{ config.tlsreqcert }}
+tls_cacertdir {{ ldap_ssl_cacert_dir }}
+tls_cacertfile {{ ldap_ssl_cacert }}
+{%- else %}
+ssl off
+{%- endif %}
+
+# Mapping of the directory structure.
+{%- if config.usersuffix | length > 0 %}
+base passwd {{ config.usersuffix }},{{ config.base }}
+base shadow {{ config.usersuffix }},{{ config.base }}
+{%- endif %}
+{%- if config.groupsuffix | length > 0 %}
+base group {{ config.groupsuffix }},{{ config.base }}
+{%- endif %}
+{%- if config.extraoptions | length > 0 %}
+
+# Extra options.
+{{ config.extraoptions }}
+{%- endif %}

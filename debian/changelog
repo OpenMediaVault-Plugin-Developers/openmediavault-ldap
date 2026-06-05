@@ -1,3 +1,20 @@
+openmediavault-ldap (8.0) stable; urgency=medium
+
+  * Adapt to OMV 8 (Debian 13 / Trixie).
+  * Replace the removed libnss-ldap/libpam-ldap (PADL) packages. The plugin
+    now supports two selectable client backends:
+    - nss-pam-ldapd (nslcd), the default, configured via /etc/nslcd.conf.
+    - SSSD, configured via /etc/sssd/sssd.conf, which adds offline
+      credential caching.
+    Only the selected backend's daemon and NSS/PAM modules are activated;
+    the other is stopped and disabled.
+  * Add TLS controls: StartTLS support (in addition to SSL/LDAPS) and a
+    configurable certificate validation level (tls_reqcert).
+  * Fix bogus quoting that produced "ldap's'://" URIs in the generated
+    LDAP client configuration.
+
+ -- OpenMediaVault Plugin Developers <plugins@omv-extras.org>  Fri, 05 Jun 2026 00:00:00 -0500
+
 openmediavault-ldap (7.0) UNRELEASED; urgency=medium
 
   * Adapt to OMV 7
