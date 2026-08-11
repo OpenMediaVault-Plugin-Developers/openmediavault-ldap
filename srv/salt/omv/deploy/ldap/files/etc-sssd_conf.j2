@@ -23,8 +23,20 @@ ldap_default_authtok = {{ config.rootbindpw }}
 {%- if config.usersuffix | length > 0 %}
 ldap_user_search_base = {{ config.usersuffix }},{{ config.base }}
 {%- endif %}
+{%- set group_bases = [] %}
 {%- if config.groupsuffix | length > 0 %}
-ldap_group_search_base = {{ config.groupsuffix }},{{ config.base }}
+{%- do group_bases.append(config.groupsuffix ~ "," ~ config.base) %}
+{%- endif %}
+{%- if config.extragroupsuffix | length > 0 %}
+{%- for suffix in config.extragroupsuffix.splitlines() %}
+{%- set suffix = suffix.strip() %}
+{%- if suffix | length > 0 %}
+{%- do group_bases.append(suffix ~ "," ~ config.base) %}
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+{%- if group_bases | length > 0 %}
+ldap_group_search_base = {{ group_bases | join(";") }}
 {%- endif %}
 
 {% if config.enablessl | to_bool -%}

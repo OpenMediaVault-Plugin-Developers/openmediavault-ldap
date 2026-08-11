@@ -108,6 +108,11 @@ data:
         label: _("Groups suffix")
         hint: _("Specifies the group suffix, e.g. 'ou=Groups'.")
         value: "ou=Groups"
+      - type: textarea
+        name: extragroupsuffix
+        label: _("Additional group suffixes")
+        hint: _("Optional extra group suffixes to search in addition to the Groups suffix above, one per line. Each is combined with the Base DN. Useful for directories - such as authentik's LDAP outpost - that expose per-user primary groups under a separate OU, e.g. 'ou=virtual-groups'.")
+        value: ''
       - type: textInput
         name: machinesuffix
         label: _("Machines suffix")
@@ -147,12 +152,12 @@ data:
               arg0:
                 prop: backend
               arg1: "sssd"
-      - type: textInput
+      - type: textarea
         name: extraoptions
         label: _("Extra options")
         hint: _("Additional lines appended to the active backend configuration - the <a href='https://manpages.debian.org/trixie/nslcd/nslcd.conf.5.en.html' target='_blank'>nslcd.conf</a> body, or the <a href='https://manpages.debian.org/trixie/sssd/sssd.conf.5.en.html' target='_blank'>sssd.conf</a> domain section.")
         value: ''
-      - type: textInput
+      - type: textarea
         name: extraclientoptions
         label: _("Extra client options LDAP.CONF")
         hint: _("Please check the <a href='https://manpages.debian.org/trixie/libldap-common/ldap.conf.5.en.html' target='_blank'>manual page</a> for more details.")

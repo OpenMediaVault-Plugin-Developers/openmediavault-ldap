@@ -55,6 +55,9 @@
       "type": "string",
       "default": "ou=Groups"
     },
+    "extragroupsuffix": {
+      "type": "string"
+    },
     "machinesuffix": {
       "type": "string",
       "default": "ou=Computers"

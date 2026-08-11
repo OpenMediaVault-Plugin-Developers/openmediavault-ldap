@@ -40,6 +40,14 @@ base shadow {{ config.usersuffix }},{{ config.base }}
 {%- if config.groupsuffix | length > 0 %}
 base group {{ config.groupsuffix }},{{ config.base }}
 {%- endif %}
+{%- if config.extragroupsuffix | length > 0 %}
+{%- for suffix in config.extragroupsuffix.splitlines() %}
+{%- set suffix = suffix.strip() %}
+{%- if suffix | length > 0 %}
+base group {{ suffix }},{{ config.base }}
+{%- endif %}
+{%- endfor %}
+{%- endif %}
 {%- if config.extraoptions | length > 0 %}
 
 # Extra options.
